@@ -23,7 +23,7 @@ jobs:
       - name: Installer Poetry
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
-          export PATH="$HOME/.local/bin:$PATH"
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Installer les dépendances
         run: poetry install --no-root
@@ -65,7 +65,7 @@ jobs:
       - name: Installer Poetry
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
-          export PATH="$HOME/.local/bin:$PATH"
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Installer les dépendances
         run: poetry install --no-root
