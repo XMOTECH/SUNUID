@@ -11,5 +11,5 @@ engine = create_engine(DATABASE_URL, echo=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 def init_db():
-    import app.models.citizen  # importe tes modèles
+    import app.models.citizen  # noqa: F401
     SQLModel.metadata.create_all(bind=engine)

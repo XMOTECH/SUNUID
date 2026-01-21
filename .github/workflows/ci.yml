@@ -32,7 +32,7 @@ jobs:
         run: poetry run ruff check .
 
       - name: Vérification de types avec Mypy
-        run: poetry run mypy .
+        run: poetry run mypy . --explicit-package-bases
 
   test:
     runs-on: ubuntu-latest

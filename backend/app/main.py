@@ -1,5 +1,5 @@
-from fastapi import FastAPI, Depends
-from sqlalchemy.orm import Session
+from fastapi import FastAPI
+
 from app.core.db import SessionLocal, init_db
 
 app = FastAPI(title="SUNUID Backend")
