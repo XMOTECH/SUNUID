@@ -1,0 +1,87 @@
+name: CI SUNUID
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  lint-and-typecheck:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Installer Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          export PATH="$HOME/.local/bin:$PATH"
+
+      - name: Installer les dépendances
+        run: poetry install --no-root
+
+      - name: Lint avec Ruff
+        run: poetry run ruff check .
+
+      - name: Vérification de types avec Mypy
+        run: poetry run mypy .
+
+  test:
+    runs-on: ubuntu-latest
+    needs: lint-and-typecheck
+    defaults:
+      run:
+        working-directory: ./backend
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: sunuid
+          POSTGRES_PASSWORD: secret
+          POSTGRES_DB: sunuid_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Installer Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          export PATH="$HOME/.local/bin:$PATH"
+
+      - name: Installer les dépendances
+        run: poetry install --no-root
+
+      - name: Exécuter les tests
+        env:
+          DATABASE_URL: postgresql+psycopg2://sunuid:secret@localhost:5432/sunuid_db
+        run: poetry run pytest
+
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build de l'image Docker backend
+        run: |
+          cd backend
+          docker build -t sunuid-backend:latest .
